@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>初心者向けルール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* ===== 基本 ===== */
+        html,
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background: url('img/background.jpg') no-repeat center/cover;
+            background-attachment: fixed;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* ===== ヘッダー ===== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+
+        header.hide {
+            transform: translateY(-100%);
+        }
+
+        header h1 {
+            margin: 0;
+            line-height: 60px;
+            padding-left: 15px;
+            font-size: 18px;
+        }
+
+        /* 🍔 ハンバーガー（分かりやすく） */
+        .hamburger {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            padding: 6px;
+            cursor: pointer;
+            background: #4CAF50;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ===== オーバーレイ ===== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            z-index: 900;
+        }
+
+        .show .overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===== ドロワー ===== */
+        #drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 240px;
+            height: 100%;
+            background: #fff;
+            padding: 80px 20px;
+            transform: translateX(100%);
+            transition: 0.3s;
+            z-index: 1001;
+        }
+
+        .show #drawer {
+            transform: translateX(0);
+        }
+
+        #drawer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #drawer li {
+            margin-bottom: 15px;
+        }
+
+        #drawer a {
+            display: block;
+            padding: 10px;
+            background: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        /* ===== メイン ===== */
+        main {
+            max-width: 900px;
+            margin: 80px auto 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* ===== 解説セクション（色付き四角） ===== */
+        .section {
+            background: #f5fff6;
+            /* 薄い緑 */
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 20px 15px 30px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #2e7d32;
+            border-bottom: 1px dashed #4CAF50;
+            padding-bottom: 6px;
+        }
+
+        /* 画像 */
+        img {
+            max-width: 95%;
+            display: block;
+            margin: 15px auto;
+        }
+
+        /* YouTube */
+        .youtube-wrap {
+            position: relative;
+            padding-top: 56.25%;
+        }
+
+        .youtube-wrap iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ボタン */
+        button {
+            display: block;
+            margin: 30px auto 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header">
+        <h1>初心者向けルール</h1>
+        <img src="img/hamburger.png" class="hamburger" id="openNav" alt="menu">
+    </header>
+
+    <div class="overlay" id="overlay"></div>
+
+    <nav id="drawer">
+        <ul>
+            <li><a href="#sec1">① カードの種類</a></li>
+            <li><a href="#sec2">② 基本ルール</a></li>
+            <li><a href="#sec3">③ ゲームの流れ</a></li>
+            <li><a href="#sec4">④ 勝利条件</a></li>
+            <li><a href="#sec5">⑤ 動画で学ぶ</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="section" id="sec1">
+            <h2>1. カードは大きく3種類ある！</h2>
+            <img src="img/モデル１.webp">
+            <img src="img/モデル２.webp">
+        </div>
+
+        <div class="section" id="sec2">
+            <h2>2. 対戦の基本ルール</h2>
+            <img src="img/ルール解説-removebg-preview.png">
+            <p>
+                ・お互いのデッキをシャッフルする<br>
+                ・山札から５枚をシールドゾーンに置く<br>
+                ・山札から５枚を引く<br>
+                ・じゃんけんで先行を決める
+            </p>
+        </div>
+
+        <div class="section" id="sec3">
+            <h2>3. デュエマの流れ</h2>
+            <p>
+                ・先行の1ターン目はカードを引けない<br>
+                ・カードを引く → マナを置く → 呪文を唱える・クリーチャーを召喚する → アタック → ターンを終了する<br>
+                ・この流れで進んでいく
+            </p>
+        </div>
+
+        <div class="section" id="sec4">
+            <h2>4. 勝利条件</h2>
+            <p>
+                相手のシールドを全てブレイクしダイレクトアタックをする<br>
+                または相手の山札を0枚にする（ライブラリアウト）<br>
+                ※一部カードには特殊勝利が存在する
+            </p>
+        </div>
+
+        <div class="section" id="sec5">
+            <h2>5. 動画で学ぶ</h2>
+            <div class="youtube-wrap">
+                <iframe src="https://www.youtube.com/embed/qu4_in3H0xo" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <button onclick="location.href='rule.html'">ルール選択ページに戻る</button>
+    </main>
+
+    <script>
+        const body = document.body;
+        const openNav = document.getElementById('openNav');
+        const overlay = document.getElementById('overlay');
+        const header = document.getElementById('header');
+
+        openNav.onclick = () => body.classList.toggle('show');
+        overlay.onclick = () => body.classList.remove('show');
+
+        /* スクロールでヘッダー非表示 */
+        let last = 0;
+        window.addEventListener('scroll', () => {
+            const now = window.pageYOffset;
+            if (now > last && now > 80) {
+                header.classList.add('hide');
+            } else {
+                header.classList.remove('hide');
+            }
+            last = now;
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デュエマ 上級クイズ</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      text-align: center;
+      background: linear-gradient(#1a0000, #000);
+      color: white;
+    }
+
+    header {
+      padding: 15px;
+      font-size: 1.6rem;
+      background: #330000;
+      border-bottom: 3px solid #ff2222;
+    }
+
+    main { padding: 20px; }
+
+    #card-img {
+      width: 70%;
+      max-width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(255,0,0,.5);
+      margin: 10px auto;
+    }
+
+    #timer {
+      color: #ff4444;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    /* ===== 選択肢 ===== */
+    #choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+      align-items: center;
+    }
+
+    .choice {
+      width: 90%;
+      max-width: 320px;
+      padding: 14px 10px;
+
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.4;
+      text-align: center;
+      white-space: normal;
+      word-break: break-word;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 10px;
+      border: 2px solid #ff4444;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    }
+
+    .correct { background: #00c853 !important; }
+    .wrong   { background: #d50000 !important; }
+
+    /* ===== PC表示：2列 ===== */
+    @media (min-width:768px) {
+      #choices {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .choice {
+        width: 45%;
+        max-width: 300px;
+        font-size: 1.05rem;
+      }
+    }
+
+    #resultScreen { display: none; }
+
+    button {
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      width: 70%;
+      max-width: 260px;
+    }
+  </style>
+</head>
+
+<body>
+<header>デュエマ 上級カード名クイズ</header>
+
+<main id="quizScreen">
+  <p id="timer"></p>
+  <img id="card-img" src="">
+  <p>このカードの名前は？</p>
+  <div id="choices"></div>
+</main>
+
+<main id="resultScreen">
+  <h2>結果発表！</h2>
+  <p>
+    あなたのスコア：
+    <strong id="finalScore">0</strong> /
+    <span id="totalQ">0</span>
+  </p>
+
+  <button onclick="resetQuiz()">もう一度プレイ</button>
+  <button onclick="goToKuizu()">クイズ選択画面へ</button>
+</main>
+
+<script>
+/* ===== DOM取得 ===== */
+const quizScreen = document.getElementById("quizScreen");
+const resultScreen = document.getElementById("resultScreen");
+const cardImg = document.getElementById("card-img");
+const choicesDiv = document.getElementById("choices");
+const timerEl = document.getElementById("timer");
+const finalScore = document.getElementById("finalScore");
+const totalQ = document.getElementById("totalQ");
+
+/* ===== 問題 ===== */
+const quiz = [
+  { img:"img/上級１.PNG", choices:["せいぎてい","ジャスティス・エンペラー","インペラトーレ・デッラ・ジュスティツィア","アイアム・ジャスティス・イフユーウォント"], answer:3 },
+  { img:"img/上級２.PNG", choices:["せいほうよりくるげきりゅうのりゅうきこう","ハイドロ・ビスマルク","プロヴェニエンテ・ドラーゴ・カヴァリエーレ","マジック・トッレンテ"], answer:1 },
+  { img:"img/上級３.PNG", choices:["バラド・ヴィ・ナ・シューラ","いちおう・にめい・さんがんそう","オワリヘノミチビキ","オーガ・キング・サイズ"], answer:0 },
+  { img:"img/上級４.PNG", choices:["しょうりせんげんおにまるはどう","しょうりせんげんオーガヘッド","ビクトリーラッシュおにまるヘッド","ビクトリーラッシュオーガバースト"], answer:2 },
+  { img:"img/上級５.jpg", choices:["ひゃくぞくのおさ","ミア・モジャ","ちょうじゅうのおさ","ひゃくじゅうのもさ"], answer:1 },
+  { img:"img/上級６.PNG", choices:["偉大な知識","サイエンス","知識の標本","呪文たちの沈黙"], answer:3 },
+  { img:"img/上級７.PNG", choices:["スパイラルアクセル","アクセルバトル","しっぷうどとう","スパイラルミッション"], answer:0 },
+  { img:"img/上級８.PNG", choices:["こうまのよろい","メイジ・オブ・カースブレイカー","シャイニング・ナイト","アブソリュート"], answer:1 },
+  { img:"img/上級９.PNG", choices:["アイアム・ジャスティス・イフユーウォント きらスター","せいぎせいてい きらスター","ジャスティススター きらスター","スティルジャスティスティルジエンド きらスター"], answer:3 },
+  { img:"img/上級１０.jpg", choices:["ひしょうりゅう5000ヴィティー","フライドドラゴン5000ヴィティー","フライングブイ5000ヴィティー","ドラゴニックギタリスト5000ヴィティー"], answer:2 }
+];
+
+/* ===== シャッフル ===== */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+function shuffleChoices(q){
+  const set=q.choices.map((t,i)=>({t,ok:i===q.answer}));
+  shuffle(set);
+  q.choices=set.map(s=>s.t);
+  q.answer=set.findIndex(s=>s.ok);
+}
+
+/* ===== 進行 ===== */
+let current=0, score=0, time=5, timerId;
+
+function startTimer(){
+  time=5;
+  timerEl.textContent=`残り時間：${time}秒`;
+  timerId=setInterval(()=>{
+    time--;
+    timerEl.textContent=`残り時間：${time}秒`;
+    if(time<=0){ clearInterval(timerId); next(); }
+  },1000);
+}
+
+function showQuestion(){
+  clearInterval(timerId);
+  startTimer();
+
+  const q=quiz[current];
+  shuffleChoices(q);
+
+  cardImg.src=q.img;
+  choicesDiv.innerHTML="";
+
+  q.choices.forEach((text,i)=>{
+    const b=document.createElement("button");
+    b.className="choice";
+    b.textContent=text;
+    b.onclick=()=>check(i,b);
+    choicesDiv.appendChild(b);
+  });
+}
+
+function check(i,btn){
+  clearInterval(timerId);
+  const btns=document.querySelectorAll(".choice");
+  btns.forEach(b=>b.disabled=true);
+
+  if(i===quiz[current].answer){
+    btn.classList.add("correct");
+    score++;
+  }else{
+    btn.classList.add("wrong");
+    btns[quiz[current].answer].classList.add("correct");
+  }
+  setTimeout(next,1000);
+}
+
+function next(){
+  current++;
+  current>=quiz.length ? showResult() : showQuestion();
+}
+
+function showResult(){
+  quizScreen.style.display="none";
+  resultScreen.style.display="block";
+  finalScore.textContent=score;
+  totalQ.textContent=quiz.length;
+}
+
+function resetQuiz(){
+  current=0;
+  score=0;
+  shuffle(quiz);
+  quizScreen.style.display="block";
+  resultScreen.style.display="none";
+  showQuestion();
+}
+
+/* kuizu.htmlへ移動 */
+function goToKuizu(){
+  location.href = "kuizu.html";
+}
+
+/* ===== 開始 ===== */
+shuffle(quiz);
+showQuestion();
+</script>
+</body>
+</html>

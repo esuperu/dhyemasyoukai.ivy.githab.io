@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>クイズ 初級</title>
+
+  <!-- 📱 全デバイス対応 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      background: linear-gradient(#1a0000, #000000);
+      color: white;
+    }
+
+    header {
+      background: #330000;
+      padding: 14px;
+      font-size: clamp(1.2rem, 4vw, 1.6rem);
+      border-bottom: 3px solid #ff2222;
+    }
+
+    main {
+      padding: 16px;
+    }
+
+    #timer {
+      font-size: clamp(1.1rem, 4vw, 1.4rem);
+      margin: 10px 0;
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    #card-img {
+      width: min(90%, 320px);
+      border-radius: 10px;
+      margin-top: 12px;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+    }
+
+    #question {
+      font-size: clamp(1.05rem, 4vw, 1.3rem);
+      margin-top: 10px;
+    }
+
+    /* ===== 回答ボタン ===== */
+
+    /* 📱 スマホ：縦並び */
+    #choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .choice {
+      width: 100%;
+      padding: 14px 0;
+      font-size: clamp(1rem, 4vw, 1.15rem);
+      border-radius: 12px;
+      border: 2px solid #ff4444;
+      background: #222;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* 💻 パソコン：横並び */
+    @media (min-width: 768px) {
+      #choices {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .choice {
+        width: 45%;
+        max-width: 260px;
+      }
+    }
+
+    .correct {
+      background: #00c853 !important;
+    }
+
+    .wrong {
+      background: #d50000 !important;
+    }
+
+    /* ===== 結果画面 ===== */
+    #resultScreen {
+      display: none;
+      padding: 32px 16px 120px;
+    }
+
+    #retryBtn,
+    #backBtn {
+      padding: 15px 20px;
+      margin-top: 16px;
+      font-size: clamp(1rem, 4vw, 1.15rem);
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      width: min(90%, 320px);
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #retryBtn {
+      background: #ff2222;
+      color: white;
+    }
+
+    #backBtn {
+      background: #333;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>デュエマカード当てクイズ（初級）</header>
+
+<!-- クイズ画面 -->
+<main id="quizScreen">
+  <p id="timer">残り時間: 10秒</p>
+  <img id="card-img" src="" alt="カード画像">
+  <p id="question"></p>
+  <div id="choices"></div>
+</main>
+
+<!-- 結果画面 -->
+<div id="resultScreen">
+  <h2>結果発表！</h2>
+  <p style="font-size:1.5rem">
+    スコア：
+    <strong id="finalScore">0</strong> /
+    <span id="totalQ">0</span>
+  </p>
+
+  <button id="retryBtn" onclick="resetQuiz()">もう一度プレイ</button>
+  <button id="backBtn" onclick="location.href='kuizu.html'">
+    クイズ選択に戻る
+  </button>
+</div>
+
+<script>
+  const quiz = [
+    {
+      question: "このカードの名前は？",
+      img: "img/シャコ.jpg",
+      choices: ["すいじょうだいきゅういん", "ウォーターオンザシェル", "すいじょうのじいん", "シェルオブナインウォーター"],
+      answer: 0
+    },
+    {
+      question: "このカードの名前は？",
+      img: "img/初級２.PNG",
+      choices: ["レジェンドマスター", "でんせつはりゅう", "レジェンドドラゴン", "でんせつりゅうは"],
+      answer: 3
+    },
+    {
+      question: "このカードの名前は？",
+      img: "img/初級３.PNG",
+      choices: ["インペラトーレ・ドラゴン", "りゅうおうしん", "かみなるりゅう", "ドラゴニック・エンペラー"],
+      answer: 1
+    },
+    {
+      question: "このカードの名前は？",
+      img: "img/初級４.webp",
+      choices: ["クライマックス", "ハイライト", "フィナーレ", "終焉の鬼"],
+      answer: 0
+    },
+    {
+      question: "このカードの名前は？",
+      img: "img/初級５.jpg",
+      choices: ["ヘブンズ・エスプリ", "ジャッチメント・エスプリ", "とうもんのせいれい", "とうげんのせいれい"],
+      answer: 2
+    }
+  ];
+
+  let current = 0;
+  let score = 0;
+
+  function showQuestion() {
+    const q = quiz[current];
+    document.getElementById("card-img").src = q.img;
+    document.getElementById("question").textContent = q.question;
+
+    const choices = document.getElementById("choices");
+    choices.innerHTML = "";
+
+    q.choices.forEach((c, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = c;
+      btn.className = "choice";
+      btn.onclick = () => checkAnswer(btn, i);
+      choices.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, index) {
+    if (index === quiz[current].answer) score++;
+
+    document.querySelectorAll(".choice").forEach((b, i) => {
+      b.disabled = true;
+      if (i === quiz[current].answer) b.classList.add("correct");
+      if (b === btn && i !== quiz[current].answer) b.classList.add("wrong");
+    });
+
+    setTimeout(() => {
+      current++;
+      current >= quiz.length ? showResult() : showQuestion();
+    }, 800);
+  }
+
+  function showResult() {
+    document.getElementById("quizScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("finalScore").textContent = score;
+    document.getElementById("totalQ").textContent = quiz.length;
+    window.scrollTo(0, 0);
+  }
+
+  function resetQuiz() {
+    current = 0;
+    score = 0;
+    document.getElementById("resultScreen").style.display = "none";
+    document.getElementById("quizScreen").style.display = "block";
+    showQuestion();
+  }
+
+  showQuestion();
+</script>
+
+</body>
+</html>
